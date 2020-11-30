@@ -9,7 +9,7 @@ NOCOMMIT=0
 
 REGISTRY="quay.io"
 DOCKERFILE="Dockerfile"
-ORGANIZATION="eclipse"
+ORGANIZATION="mkuznets"
 IMAGE="che-machine-exec"
 
 while [[ "$#" -gt 0 ]]; do
