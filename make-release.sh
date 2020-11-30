@@ -7,6 +7,11 @@
 TRIGGER_RELEASE=0 
 NOCOMMIT=0
 
+REGISTRY="quay.io"
+DOCKERFILE="Dockerfile"
+ORGANIZATION="eclipse"
+IMAGE="che-machine-exec"
+
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     '-t'|'--trigger-release') TRIGGER_RELEASE=1; NOCOMMIT=0; shift 0;;
@@ -27,6 +32,16 @@ if [[ ! ${VERSION} ]] || [[ ! ${REPO} ]]; then
   usage
   exit 1
 fi
+
+releaseMachineExec() {
+  GIT_COMMIT_TAG=$(git rev-parse --short HEAD)
+  docker build -t ${IMAGE} -f ./build/dockerfiles/Dockerfile . | cat
+  tag_push "${REGISTRY}/${ORGANIZATION}/${IMAGE}:${GIT_COMMIT_TAG}"
+  echo "'${GIT_COMMIT_TAG}' version of images pushed to '${REGISTRY}/${ORGANIZATION}' organization"
+  
+  tag_push "${REGISTRY}/${ORGANIZATION}/${IMAGE}:${VERSION}"
+  echo "'${VERSION}'  version of images pushed to '${REGISTRY}/${ORGANIZATION}' organization"
+}
 
 # derive branch from version
 BRANCH=${VERSION%.*}.x
@@ -69,10 +84,7 @@ fi
 
 if [[ $TRIGGER_RELEASE -eq 1 ]]; then
   # push new branch to release branch to trigger CI build
-  git fetch origin "${BRANCH}:${BRANCH}"
-  git checkout "${BRANCH}"
-  git branch release -f 
-  git push origin release -f
+  releaseMachineExec
 
   # tag the release
   git checkout "${BRANCH}"
