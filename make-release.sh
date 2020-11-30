@@ -53,13 +53,6 @@ else
   BASEBRANCH="${BRANCH}"
 fi
 
-# work in tmp dir
-TMP=$(mktemp -d); pushd "$TMP" > /dev/null || exit 1
-
-# get sources from ${BASEBRANCH} branch
-echo "Check out ${REPO} to ${TMP}/${REPO##*/}"
-git clone "${REPO}" -q
-cd "${REPO##*/}" || exit 1
 git fetch origin "${BASEBRANCH}":"${BASEBRANCH}"
 git checkout "${BASEBRANCH}"
 
@@ -131,8 +124,3 @@ if [[ ${NOCOMMIT} -eq 0 ]]; then
 ${lastCommitComment}" -b "${BRANCH}" -h "${PR_BRANCH}"
   fi 
 fi
-
-popd > /dev/null || exit
-
-# cleanup tmp dir
-cd /tmp && rm -fr "$TMP"
